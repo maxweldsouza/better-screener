@@ -10,7 +10,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.screener.in/*"],
-      "js": ["content.js"],
+      "js": ["js/chart.umd.js", "content.js"],
       "run_at": "document_idle"
     }
   ]

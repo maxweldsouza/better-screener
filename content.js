@@ -15,10 +15,79 @@
         }, delay);
     }
 
+    function getNetProfitDataAndPlot() {
+        const table = document.querySelector("#profit-loss table.data-table");
+        if (!table) {
+            console.error("Profit & Loss table not found.");
+            return;
+        }
+
+        const rows = table.querySelectorAll("tbody tr");
+        let labels = [];
+        let netProfitData = [];
+
+        // Extract labels from table header
+        const headerCells = table.querySelectorAll("thead tr th");
+        labels = Array.from(headerCells).slice(1).map(th => th.innerText.trim());
+
+        // Find Net Profit row
+        rows.forEach(row => {
+            const firstCell = row.querySelector("td.text");
+            if (firstCell && firstCell.innerText.includes("Net Profit")) {
+                netProfitData = Array.from(row.querySelectorAll("td:not(.text)"))
+                    .map(td => td.innerText.replace(/,/g, "").trim())
+                    .map(value => value ? parseFloat(value) : null);
+            }
+        });
+
+        if (netProfitData.length === 0) {
+            console.error("Net Profit row not found.");
+            return;
+        }
+
+        // Create a canvas element dynamically
+        const canvas = document.createElement('canvas');
+        // const topElement = document.getElementById("chart");
+        // topElement.insertAdjacentElement("afterend", canvas)
+        document.body.append(canvas)
+        const ctx = canvas.getContext('2d');
+
+        // Create the chart using the preloaded Chart.js
+        setTimeout(() => {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Net Profit (Rs. Crores)',
+                        data: netProfitData,
+                        borderColor: 'blue',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: 160
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+        }, 100)
+    }
+
+
     // Wait for the page to fully load
     window.addEventListener("load", function() {
         if (!window.location.pathname.startsWith('/company')) return
         clickButton(MoreSelector);
         clickButton(salesAndMarginSelector, 100);
+        getNetProfitDataAndPlot();
+
     });
 })();
