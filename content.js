@@ -5,6 +5,7 @@
     const MaxPeriodSelector = `button[value="10000"]`
 
     let selectedLabel = 'Net Profit'
+    let logScale = false
     let chart
 
     const tableSelectors = {
@@ -13,6 +14,10 @@
         'Sales': '#profit-loss',
         'Borrowings': '#balance-sheet',
         'Working Capital Days': '#ratios',
+    }
+    const alternateLabels = {
+        'Sales': 'Revenue',
+        'Operating Profit': 'Financing Profit',
     }
     function clickButton(selector, delay = 0) {
         setTimeout(() => {
@@ -50,7 +55,7 @@
     function renderToolbar(container) {
         // Create a new element using template string
         const toolbar = `
-        <div class=" flex">
+            <div class="flex flex-row " style="width:100% ;justify-content: space-between; align-items: center;">
             <div class="options flex">
                 <button type="button" class="better-screener-button active">Net Profit</button>
                 <button type="button" class="better-screener-button">Operating Profit</button>
@@ -58,7 +63,8 @@
                 <button type="button" class="better-screener-button">Borrowings</button>
                 <button type="button" class="better-screener-button">Working Capital Days</button>
             </div>
-        </div>
+            <label><input class="chart-checkbox" type="checkbox" id="better-screener-log-scale" style="background: rgb(163, 157, 251);"/>Log Scale</label>
+            </div>
     `;
 
         container.insertAdjacentHTML("beforeend", toolbar);
@@ -119,7 +125,7 @@
         const tableSelector = tableSelectors[label]
         const tableElement = document.querySelector(tableSelector);
         if (!tableElement) {
-            console.error("Profit & Loss table not found.");
+            console.error("Table not found.");
             return;
         }
         const data = getTableRowData(tableElement, label)
@@ -134,6 +140,7 @@
                 backgroundColor: '#a39dfb'
             }]
         }
+        chart.options.scales.y.type = logScale ? 'logarithmic' : 'linear';
         chart.update()
     }
     function setEventHandlers() {
@@ -145,6 +152,11 @@
                 plotData(selectedLabel)
             })
 
+        })
+        document.querySelector('#better-screener-log-scale').addEventListener('click', e => {
+            logScale = e.target.checked
+            chart.options.scales.y.type = logScale ? 'logarithmic' : 'linear';
+            chart.update()
         })
     }
 
