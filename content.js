@@ -15,21 +15,14 @@
         }, delay);
     }
 
-    function getNetProfitDataAndPlot() {
+    function getNetProfitData () {
         const table = document.querySelector("#profit-loss table.data-table");
         if (!table) {
             console.error("Profit & Loss table not found.");
             return;
         }
-
         const rows = table.querySelectorAll("tbody tr");
-        let labels = [];
         let netProfitData = [];
-
-        // Extract labels from table header
-        const headerCells = table.querySelectorAll("thead tr th");
-        labels = Array.from(headerCells).slice(1).map(th => th.innerText.trim());
-
         // Find Net Profit row
         rows.forEach(row => {
             const firstCell = row.querySelector("td.text");
@@ -39,6 +32,24 @@
                     .map(value => value ? parseFloat(value) : null);
             }
         });
+        return netProfitData
+    }
+
+    function getLabels () {
+        const table = document.querySelector("#profit-loss table.data-table");
+        if (!table) {
+            console.error("Profit & Loss table not found.");
+            return;
+        }
+        let labels = [];
+        const headerCells = table.querySelectorAll("thead tr th");
+        labels = Array.from(headerCells).slice(1).map(th => th.innerText.trim());
+        return labels
+    }
+
+    function getNetProfitDataAndPlot() {
+        const labels = getLabels()
+        const netProfitData = getNetProfitData()
 
         if (netProfitData.length === 0) {
             console.error("Net Profit row not found.");
@@ -53,7 +64,6 @@
         container.setAttribute('class', 'card card-large')
         container.setAttribute('style', 'height:640px')
         container.appendChild(canvas)
-
 
 
         const topElement = document.getElementById("top");
