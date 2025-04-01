@@ -13,7 +13,6 @@
         'Sales': '#profit-loss',
         'Borrowings': '#balance-sheet',
         'Working Capital Days': '#ratios',
-        'Promoters': '#shareholding',
     }
     function clickButton(selector, delay = 0) {
         setTimeout(() => {
@@ -58,7 +57,6 @@
                 <button type="button" class="better-screener-button">Sales</button>
                 <button type="button" class="better-screener-button">Borrowings</button>
                 <button type="button" class="better-screener-button">Working Capital Days</button>
-                <button type="button" class="better-screener-button">Promoters</button>
             </div>
         </div>
     `;
