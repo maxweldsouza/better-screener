@@ -15,41 +15,51 @@
         }, delay);
     }
 
-    function getNetProfitData () {
-        const table = document.querySelector("#profit-loss table.data-table");
-        if (!table) {
-            console.error("Profit & Loss table not found.");
-            return;
-        }
+    function getTableRowData (table, label) {
         const rows = table.querySelectorAll("tbody tr");
-        let netProfitData = [];
-        // Find Net Profit row
+        let rowData = [];
         rows.forEach(row => {
             const firstCell = row.querySelector("td.text");
-            if (firstCell && firstCell.innerText.includes("Net Profit")) {
-                netProfitData = Array.from(row.querySelectorAll("td:not(.text)"))
+            if (firstCell && firstCell.innerText.includes(label)) {
+                rowData = Array.from(row.querySelectorAll("td:not(.text)"))
                     .map(td => td.innerText.replace(/,/g, "").trim())
                     .map(value => value ? parseFloat(value) : null);
             }
         });
-        return netProfitData
+        return rowData
     }
 
-    function getLabels () {
-        const table = document.querySelector("#profit-loss table.data-table");
-        if (!table) {
-            console.error("Profit & Loss table not found.");
-            return;
-        }
-        let labels = [];
+    function getLabels (table) {
+        let labels;
         const headerCells = table.querySelectorAll("thead tr th");
         labels = Array.from(headerCells).slice(1).map(th => th.innerText.trim());
         return labels
     }
 
+    function renderToolbar(container) {
+        // Create a new element using template string
+        const toolbar = `
+        <div class="flex">
+            <div class="options flex">
+                <button type="button" class="active">Net Profit</button>
+                <button type="button">Sales</button>
+            </div>
+        </div>
+    `;
+
+        container.insertAdjacentHTML("beforeend", toolbar);
+    }
+
     function getNetProfitDataAndPlot() {
-        const labels = getLabels()
-        const netProfitData = getNetProfitData()
+        const table = document.querySelector("#profit-loss table.data-table");
+        if (!table) {
+            console.error("Profit & Loss table not found.");
+            return;
+        }
+        const labels = getLabels(table)
+        const netProfitData = getTableRowData(table, "Net Profit")
+        const salesData = getTableRowData(table, "Sales")
+        console.log("salesData", salesData);
 
         if (netProfitData.length === 0) {
             console.error("Net Profit row not found.");
@@ -63,6 +73,9 @@
         const container = document.createElement('div')
         container.setAttribute('class', 'card card-large')
         container.setAttribute('style', 'height:640px')
+
+        renderToolbar(container)
+
         container.appendChild(canvas)
 
 
@@ -80,10 +93,15 @@
                         label: 'Net Profit (Rs. Crores)',
                         data: netProfitData,
                         fill: true,
-                        fillColor: 'blue'
+                        backgroundColor: '#a39dfb'
                     }]
                 },
                 options: {
+                    plugins: {
+                        legent: {
+                            display: false
+                        }
+                    },
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
@@ -100,7 +118,12 @@
                         }
                     },
                     layout: {
-                        padding: 10
+                        padding: {
+                            left: 30,
+                            right: 30,
+                            top: 0,
+                            bottom: 60
+                        }
                     },
                 }
             });
