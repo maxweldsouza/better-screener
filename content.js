@@ -47,38 +47,54 @@
 
         // Create a canvas element dynamically
         const canvas = document.createElement('canvas');
-        // const topElement = document.getElementById("chart");
-        // topElement.insertAdjacentElement("afterend", canvas)
-        document.body.append(canvas)
+        canvas.setAttribute('id', 'better-screener-canvas')
+
+        const container = document.createElement('div')
+        container.setAttribute('class', 'card card-large')
+        container.setAttribute('style', 'height:640px')
+        container.appendChild(canvas)
+
+
+
+        const topElement = document.getElementById("top");
+        topElement.insertAdjacentElement("afterend", container)
         const ctx = canvas.getContext('2d');
 
+        let chart
         // Create the chart using the preloaded Chart.js
-        setTimeout(() => {
-            new Chart(ctx, {
+            chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
                         label: 'Net Profit (Rs. Crores)',
                         data: netProfitData,
-                        borderColor: 'blue',
-                        borderWidth: 2,
-                        fill: false
+                        fill: true,
+                        fillColor: 'blue'
                     }]
                 },
                 options: {
-                    responsive: false,
+                    responsive: true,
                     maintainAspectRatio: false,
-                    layout: {
-                        padding: 160
-                    },
                     scales: {
-                        y: { beginAtZero: true }
-                    }
+                        x: {
+                            grid: {
+                                display: false // Remove vertical gridlines
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: true // Keep horizontal gridlines
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    layout: {
+                        padding: 10
+                    },
                 }
             });
 
-        }, 100)
     }
 
 
