@@ -128,7 +128,11 @@
             console.error("Table not found.");
             return;
         }
-        const data = getTableRowData(tableElement, label)
+        let data = getTableRowData(tableElement, label)
+        if (!data.length) {
+            label = alternateLabels[label]
+            data = getTableRowData(tableElement, label)
+        }
         const labels = getLabels(tableElement)
         if (!data.length) return console.error('Empty data');
         chart.data = {
