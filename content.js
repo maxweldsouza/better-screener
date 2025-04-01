@@ -3,6 +3,18 @@
     const salesAndMarginSelector = `button[value="GPM-OPM-NPM-Quarter Sales"]`
     const PESelector = `button[value="Price to Earning-Median PE-EPS"]`
     const MaxPeriodSelector = `button[value="10000"]`
+
+    let selectedLabel = 'Net Profit'
+    let chart
+
+    const tableSelectors = {
+        'Net Profit': '#profit-loss',
+        'Operating Profit': '#profit-loss',
+        'Sales': '#profit-loss',
+        'Borrowings': '#balance-sheet',
+        'Working Capital Days': '#ratios',
+        'Promoters': '#shareholding',
+    }
     function clickButton(selector, delay = 0) {
         setTimeout(() => {
             var btn = document.querySelector(selector);
@@ -42,7 +54,11 @@
         <div class=" flex">
             <div class="options flex">
                 <button type="button" class="better-screener-button active">Net Profit</button>
+                <button type="button" class="better-screener-button">Operating Profit</button>
                 <button type="button" class="better-screener-button">Sales</button>
+                <button type="button" class="better-screener-button">Borrowings</button>
+                <button type="button" class="better-screener-button">Working Capital Days</button>
+                <button type="button" class="better-screener-button">Promoters</button>
             </div>
         </div>
     `;
@@ -50,34 +66,23 @@
         container.insertAdjacentHTML("beforeend", toolbar);
     }
 
-    function plotData(label, labels, data, topElement) {
-        // Create a canvas element dynamically
+    function createChart(topElement) {
         const canvas = document.createElement('canvas');
 
         const container = document.createElement('div')
         container.setAttribute('class', 'card card-large')
         container.setAttribute('style', 'height:480px')
 
-        const header = document.createElement('h2')
-        header.innerText = label
-        container.appendChild(header)
+        renderToolbar(container)
         container.appendChild(canvas)
 
 
         topElement.insertAdjacentElement("afterend", container)
+
         const ctx = canvas.getContext('2d');
 
-        let chart = new Chart(ctx, {
+        chart = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: label,
-                    data: data,
-                    fill: true,
-                    backgroundColor: '#a39dfb'
-                }]
-            },
             options: {
                 plugins: {
                     legend: {
@@ -111,24 +116,38 @@
         });
 
     }
-    function getNetProfitDataAndPlot() {
-        const table = document.querySelector("#profit-loss table.data-table");
-        if (!table) {
+
+    function plotData(label) {
+        const tableSelector = tableSelectors[label]
+        const tableElement = document.querySelector(tableSelector);
+        if (!tableElement) {
             console.error("Profit & Loss table not found.");
             return;
         }
-        const labels = getLabels(table)
-        const netProfitData = getTableRowData(table, "Net Profit")
-        const salesData = getTableRowData(table, "Sales")
-
-        if (netProfitData.length === 0) {
-            console.error("Net Profit row not found.");
-            return;
+        const data = getTableRowData(tableElement, label)
+        const labels = getLabels(tableElement)
+        if (!data.length) return console.error('Empty data');
+        chart.data = {
+            labels: labels,
+                datasets: [{
+                label: label,
+                data: data,
+                fill: true,
+                backgroundColor: '#a39dfb'
+            }]
         }
+        chart.update()
+    }
+    function setEventHandlers() {
+        document.querySelectorAll('.better-screener-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                selectedLabel = e.target.innerText
+                document.querySelectorAll('.better-screener-button').forEach(b => b.classList.remove('active'))
+                button.classList.add('active')
+                plotData(selectedLabel)
+            })
 
-        const topElement = document.getElementById("top");
-        plotData('Sales', labels, salesData, topElement)
-        plotData('Net Profit', labels, netProfitData, topElement)
+        })
     }
 
 
@@ -137,7 +156,11 @@
         if (!window.location.pathname.startsWith('/company')) return
         clickButton(MoreSelector);
         clickButton(salesAndMarginSelector, 100);
-        getNetProfitDataAndPlot();
+        const topElement = document.getElementById("top");
+        createChart(topElement)
+        plotData(selectedLabel);
+        chart.update()
+        setEventHandlers()
 
     });
 })();
