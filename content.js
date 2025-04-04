@@ -1,4 +1,4 @@
-(function() {
+(function () {
     const MoreSelector = `#metrics-dropdown > button`
     const salesAndMarginSelector = `button[value="GPM-OPM-NPM-Quarter Sales"]`
     const PESelector = `button[value="Price to Earning-Median PE-EPS"]`
@@ -19,6 +19,7 @@
         'Sales': 'Revenue',
         'Operating Profit': 'Financing Profit',
     }
+
     function clickButton(selector, delay = 0) {
         setTimeout(() => {
             var btn = document.querySelector(selector);
@@ -31,7 +32,7 @@
         }, delay);
     }
 
-    function getTableRowData (table, label) {
+    function getTableRowData(table, label) {
         const rows = table.querySelectorAll("tbody tr");
         let rowData = [];
         rows.forEach(row => {
@@ -45,7 +46,7 @@
         return rowData
     }
 
-    function getLabels (table) {
+    function getLabels(table) {
         let labels;
         const headerCells = table.querySelectorAll("thead tr th");
         labels = Array.from(headerCells).slice(1).map(th => th.innerText.trim());
@@ -137,7 +138,7 @@
         if (!data.length) return console.error('Empty data');
         chart.data = {
             labels: labels,
-                datasets: [{
+            datasets: [{
                 label: label,
                 data: data,
                 fill: true,
@@ -147,6 +148,7 @@
         chart.options.scales.y.type = logScale ? 'logarithmic' : 'linear';
         chart.update()
     }
+
     function setEventHandlers() {
         document.querySelectorAll('.better-screener-button').forEach(button => {
             button.addEventListener('click', (e) => {
@@ -164,17 +166,124 @@
         })
     }
 
+    function highlightSectors() {
+        // Select all links that match multiple conditions
+        const links = document.querySelectorAll('a.bordered');
 
-    // Wait for the page to fully load
-    window.addEventListener("load", function() {
-        if (!window.location.pathname.startsWith('/company')) return
+        const sectors = [
+            "Aerospace & Defence",
+            // "Agro Chemicals",
+            // "Air Transport Service",
+            // "Alcoholic Beverages",
+            "Auto Ancillaries",
+            "Automobile",
+            "Banks",
+            "Bearings",
+            "Cables",
+            "Capital Goods - Electrical Equipment",
+            "Capital Goods-Non Electrical Equipment",
+            // "Castings, Forgings & Fastners",
+            // "Cement",
+            // "Cement - Products",
+            "Ceramic Products",
+            // "Chemicals",
+            // "Computer Education",
+            "Construction",
+            "Consumer Durables",
+            // "Credit Rating Agencies",
+            // "Crude Oil & Natural Gas",
+            // "Diamond, Gems and Jewellery",
+            "Diversified",
+            // "Dry cells",
+            // "E-Commerce/App based Aggregator",
+            // "Edible Oil",
+            // "Education",
+            "Electronics",
+            "Engineering",
+            // "Entertainment",
+            // "ETF",
+            // "Ferro Alloys",
+            // "Fertilizers",
+            "Finance",
+            "Financial Services",
+            "FMCG",
+            // "Gas Distribution",
+            // "Glass & Glass Products",
+            "Healthcare",
+            // "Hotels & Restaurants",
+            "Infrastructure Developers & Operators",
+            // "Infrastructure Investment Trusts",
+            "Insurance",
+            "IT - Hardware",
+            "IT - Software",
+            // "Leather",
+            "Logistics",
+            "Marine Port & Services",
+            // "Media - Print/Television/Radio",
+            // "Mining & Mineral products",
+            "Miscellaneous",
+            // "Non Ferrous Metals",
+            // "Oil Drill/Allied",
+            // "Online Media",
+            // "Packaging",
+            // "Paints/Varnish",
+            // "Paper",
+            // "Petrochemicals",
+            "Pharmaceuticals",
+            // "Plantation & Plantation Products",
+            // "Plastic products",
+            // "Plywood Boards/Laminates",
+            "Power Generation & Distribution",
+            "Power Infrastructure",
+            // "Printing & Stationery",
+            // "Quick Service Restaurant",
+            "Railways",
+            // "Readymade Garments/ Apparells",
+            "Real Estate Investment Trusts",
+            "Realty",
+            // "Refineries",
+            // "Refractories",
+            // "Retail",
+            "Sanitaryware",
+            "Ship Building",
+            // "Shipping",
+            // "Steel",
+            // "Stock/ Commodity Brokers",
+            // "Sugar",
+            // "Telecom-Handsets/Mobile",
+            "Telecomm Equipment & Infra Services",
+            "Telecomm-Service",
+            // "Textiles",
+            // "Tobacco Products",
+            // "Trading",
+            // "Tyres",
+        ]
+        links.forEach(link => {
+            if (sectors.includes(link.textContent.trim())) {
+                link.style.backgroundColor = "#fae694";
+                link.style.color = "#000";
+            }
+        });
+    }
+    function plotCharts() {
         clickButton(MoreSelector);
         clickButton(salesAndMarginSelector, 100);
-        const topElement = document.getElementById("top");
+        const topElement = document.getElementById("chart");
         createChart(topElement)
         plotData(selectedLabel);
         chart.update()
         setEventHandlers()
+    }
 
+    // Wait for the page to fully load
+    window.addEventListener("load", function () {
+        if (window.location.pathname.startsWith('/company')) {
+            plotCharts()
+        }
+
+        if (window.location.pathname.startsWith('/explore/')) {
+            highlightSectors()
+
+        }
     });
 })();
