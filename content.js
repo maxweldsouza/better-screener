@@ -61,6 +61,7 @@
                 <button type="button" class="better-screener-button active">Net Profit</button>
                 <button type="button" class="better-screener-button">Operating Profit</button>
                 <button type="button" class="better-screener-button">Sales</button>
+                <button type="button" class="better-screener-button">NPM</button>
                 <button type="button" class="better-screener-button">Borrowings</button>
                 <button type="button" class="better-screener-button">Working Capital Days</button>
             </div>
@@ -123,6 +124,23 @@
     }
 
     function plotData(label) {
+        if (label === 'NPM') {
+            plotNpm()
+            return
+        }
+        const [data, labels] = getData(label)
+        renderPlot(label, data, labels)
+    }
+
+    function plotNpm() {
+        const [netProfit, labels] = getData('Net Profit')
+        const [sales, _] = getData('Sales')
+        const npm = sales.map((s, i) => netProfit[i] / s * 100)
+
+        renderPlot('NPM %', npm, labels)
+    }
+
+    function getData(label) {
         const tableSelector = tableSelectors[label]
         const tableElement = document.querySelector(tableSelector);
         if (!tableElement) {
@@ -135,6 +153,11 @@
             data = getTableRowData(tableElement, label)
         }
         const labels = getLabels(tableElement)
+
+        return [data, labels]
+    }
+
+    function renderPlot(label, data, labels) {
         if (!data.length) return console.error('Empty data');
         chart.data = {
             labels: labels,
