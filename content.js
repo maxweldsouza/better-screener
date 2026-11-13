@@ -1,6 +1,6 @@
 (function () {
     const MoreSelector = `#metrics-dropdown > button`
-    const salesAndMarginSelector = `button[value="GPM-OPM-NPM-Quarter Sales"]`
+    const marketCapToSales = `button[value="Market Cap to Sales-Median Market Cap to Sales-Sales"]`
     const PESelector = `button[value="Price to Earning-Median PE-EPS"]`
     const MaxPeriodSelector = `button[value="10000"]`
 
@@ -13,6 +13,7 @@
         'Operating Profit': '#profit-loss',
         'Sales': '#profit-loss',
         'Borrowings': '#balance-sheet',
+        'Reserves': '#balance-sheet',
         'Working Capital Days': '#ratios',
     }
     const alternateLabels = {
@@ -32,13 +33,21 @@
         }, delay);
     }
 
+    const cleanTableRowLabel = (text) => {
+        const result = text.replace(/\+/g, '')
+                    .replace(/-/g, '')
+            .trim()
+        return result
+    }
+
     function getTableRowData(table, label) {
         const rows = table.querySelectorAll("tbody tr");
         let rowData = [];
         rows.forEach(row => {
             const firstCell = row.querySelector("td.text");
-            if (firstCell && firstCell.innerText.includes(label)) {
-                rowData = Array.from(row.querySelectorAll("td:not(.text)"))
+            if (firstCell && cleanTableRowLabel(firstCell.innerText) === label) {
+                const rowArray = Array.from(row.querySelectorAll("td:not(.text)"))
+                rowData = rowArray
                     .map(td => td.innerText.replace(/,/g, "").trim())
                     .map(value => value ? parseFloat(value) : null);
             }
@@ -62,7 +71,9 @@
                 <button type="button" class="better-screener-button">Operating Profit</button>
                 <button type="button" class="better-screener-button">Sales</button>
                 <button type="button" class="better-screener-button">NPM</button>
+                <button type="button" class="better-screener-button">Debt To Equity</button>
                 <button type="button" class="better-screener-button">Borrowings</button>
+                <button type="button" class="better-screener-button">Reserves</button>
                 <button type="button" class="better-screener-button">Working Capital Days</button>
             </div>
             <label><input class="chart-checkbox" type="checkbox" id="better-screener-log-scale" style="background: rgb(163, 157, 251);"/>Log Scale</label>
@@ -128,6 +139,10 @@
             plotNpm()
             return
         }
+        if (label === 'Debt To Equity') {
+            plotDebtToEquity()
+            return
+        }
         const [data, labels] = getData(label)
         renderPlot(label, data, labels)
     }
@@ -138,6 +153,14 @@
         const npm = sales.map((s, i) => netProfit[i] / s * 100)
 
         renderPlot('NPM %', npm, labels)
+    }
+
+    function plotDebtToEquity() {
+        const [borrowings, labels] = getData('Borrowings')
+        const [reserves, _] = getData('Reserves')
+        const debtToEquity = borrowings.map((s, i) => borrowings[i] / reserves[i])
+
+        renderPlot('Debt To Equity', debtToEquity, labels)
     }
 
     function getData(label) {
@@ -289,8 +312,6 @@
         });
     }
     function plotCharts() {
-        clickButton(MoreSelector);
-        clickButton(salesAndMarginSelector, 100);
         const topElement = document.getElementById("chart");
         createChart(topElement)
         plotData(selectedLabel);
@@ -304,9 +325,9 @@
             plotCharts()
         }
 
-        if (window.location.pathname.startsWith('/explore/')) {
-            highlightSectors()
-
-        }
+        // if (window.location.pathname.startsWith('/explore/')) {
+        //     highlightSectors()
+        //
+        // }
     });
 })();
